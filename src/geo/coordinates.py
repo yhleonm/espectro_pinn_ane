@@ -14,7 +14,12 @@ from typing import Tuple, Optional
 from dataclasses import dataclass
 
 import numpy as np
-from pyproj import CRS, Transformer
+
+try:
+    from pyproj import CRS, Transformer
+    PYPROJ_AVAILABLE = True
+except Exception:
+    PYPROJ_AVAILABLE = False
 
 
 # ---------------------------------------------------------------------------
