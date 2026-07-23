@@ -1,0 +1,72 @@
+# ─── Core de la Aplicación ─────────────────────────────────────────────────
+# Solo estos directorios SON la app:
+#   src/          → lógica Python (PINN, propagación, parsers)
+#   frontend/     → interfaz web
+#   main.py       → API FastAPI
+#   app.py        → UI Streamlit
+#   environment.yml → dependencias
+
+# ─── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ─── Entornos virtuales ─────────────────────────────────────────────────────
+venv/
+env/
+.venv/
+.env
+
+# ─── Datos pesados (regenerables) ───────────────────────────────────────────
+data/
+
+# ─── Documentación y Wiki (no es código de la app) ──────────────────────────
+docs/
+
+# ─── Scripts auxiliares (análisis offline, no app) ──────────────────────────
+scripts/
+
+# ─── Tareas y notas personales ──────────────────────────────────────────────
+tasks/
+
+# ─── Tests (opcionales, comitear solo cuando estén estables) ────────────────
+test_*.py
+
+# ─── Archivos sueltos que no son core ───────────────────────────────────────
+download_ane_data.py
+run_test.bat
+1.0
+*.bat
+*.md
+!README.md
+!GEMINI.md
+
+# ─── Archivos temporales y de scratch ───────────────────────────────────────
+scratch/
+*_old.*
+.antigravitycli/
+
+# ─── Jupyter ────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ─── IDEs ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.suo
+
+# ─── OS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Logs ───────────────────────────────────────────────────────────────────
+*.log
+
+# ─── Antigravity (estado interno del agente AI) ─────────────────────────────
+.antigravity/

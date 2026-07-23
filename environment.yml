@@ -1,0 +1,63 @@
+name: rf_simulator
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  # === Python ===
+  - python=3.11
+
+  # === Core Scientific Stack ===
+  - numpy>=1.26
+  - scipy>=1.12
+  - pandas>=2.2
+
+  # === Machine Learning & Deep Learning ===
+  - pytorch>=2.2
+  - pytorch-cuda=12.1
+  - torchvision
+  - torchaudio
+  - scikit-learn>=1.4
+
+  # === GPU Acceleration ===
+  - cupy
+
+  # === GIS & Geospatial ===
+  - rasterio>=1.3
+  - geopandas>=0.14
+  - pyproj>=3.6
+  - shapely>=2.0
+  - fiona>=1.9
+
+  # === Visualization ===
+  - matplotlib>=3.8
+  - plotly>=5.18
+
+  # === Pip-only packages ===
+  - pip
+  - pip:
+    # === Streamlit & Web Dashboard ===
+    - streamlit>=1.31
+    - pydeck>=0.8
+    - folium>=0.15
+    - streamlit-folium>=0.18
+
+    # === Additional ML/AI ===
+    - lightning>=2.2
+
+    # === Report Generation ===
+    - jinja2>=3.1
+    - python-docx>=1.1
+
+    # === Data & I/O ===
+    - h5py>=3.10
+    - netCDF4>=1.6
+    - tqdm>=4.66
+
+    # === RF & Signal Processing ===
+    - scikit-commpy>=0.8
+
+    # === Utilities ===
+    - requests>=2.31
+    - python-dotenv>=1.0

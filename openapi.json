@@ -1,0 +1,365 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "RF Link & Terrain Analytics API",
+    "description": "Microservicio de an\u00e1lisis de terreno, p\u00e9rdidas de espacio libre (FSPL), curvatura terrestre y Zona de Fresnel para enlaces de radiofrecuencia (RF).",
+    "version": "1.0.0",
+    "x-rapidapi-pricing": {
+      "basic_free": "50 requests / month (Free Test)",
+      "pro_tier": " / month (3,000 requests, .005/extra)",
+      "ultra_tier": " / month (25,000 requests, .002/extra)"
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "Verifica la salud de la API.",
+        "operationId": "health_check__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/link-analysis": {
+      "post": {
+        "tags": [
+          "RF Analytics"
+        ],
+        "summary": "Analiza la factibilidad y perfil de terreno de un enlace RF",
+        "description": "Realiza el an\u00e1lisis completo de un enlace de radiofrecuencia entre dos coordenadas Tx y Rx:\n\n- **Perfil de terreno:** Muestreo de altitudes SRTM.\n- **P\u00e9rdida por Espacio Libre (FSPL):** Modelo exacto en dB.\n- **Despeje de Zona de Fresnel:** C\u00e1lculo del elipsoide del 60% de despeje.\n- **Detecci\u00f3n de Obstrucciones:** Verificaci\u00f3n de L\u00ednea de Vista (LOS).",
+        "operationId": "analyze_rf_link_api_v1_link_analysis_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkAnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkAnalysisResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AntennaSite": {
+        "properties": {
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat",
+            "description": "Latitud en grados decimales (-90 a 90)"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon",
+            "description": "Longitud en grados decimales (-180 a 180)"
+          },
+          "height_m": {
+            "type": "number",
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Height M",
+            "description": "Altura de la antena sobre el nivel del suelo en metros",
+            "default": 10.0
+          },
+          "power_dbm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Power Dbm",
+            "description": "Potencia del transmisor en dBm (Requerido para Tx)",
+            "default": 43.0
+          },
+          "gain_dbi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gain Dbi",
+            "description": "Ganancia de la antena en dBi",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "AntennaSite"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LinkAnalysisRequest": {
+        "properties": {
+          "tx": {
+            "$ref": "#/components/schemas/AntennaSite",
+            "description": "Datos del sitio Transmisor (Tx)"
+          },
+          "rx": {
+            "$ref": "#/components/schemas/AntennaSite",
+            "description": "Datos del sitio Receptor (Rx)"
+          },
+          "frequency_mhz": {
+            "type": "number",
+            "maximum": 100000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Frequency Mhz",
+            "description": "Frecuencia de operaci\u00f3n en MHz"
+          },
+          "n_samples": {
+            "type": "integer",
+            "maximum": 500.0,
+            "minimum": 10.0,
+            "title": "N Samples",
+            "description": "N\u00famero de puntos a muestrear a lo largo del perfil",
+            "default": 100
+          }
+        },
+        "type": "object",
+        "required": [
+          "tx",
+          "rx",
+          "frequency_mhz"
+        ],
+        "title": "LinkAnalysisRequest"
+      },
+      "LinkAnalysisResponse": {
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/LinkAnalysisSummary"
+          },
+          "profile": {
+            "items": {
+              "$ref": "#/components/schemas/TerrainPoint"
+            },
+            "type": "array",
+            "title": "Profile"
+          }
+        },
+        "type": "object",
+        "required": [
+          "summary",
+          "profile"
+        ],
+        "title": "LinkAnalysisResponse"
+      },
+      "LinkAnalysisSummary": {
+        "properties": {
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "frequency_mhz": {
+            "type": "number",
+            "title": "Frequency Mhz"
+          },
+          "fspl_db": {
+            "type": "number",
+            "title": "Fspl Db"
+          },
+          "tx_elevation_m": {
+            "type": "number",
+            "title": "Tx Elevation M"
+          },
+          "rx_elevation_m": {
+            "type": "number",
+            "title": "Rx Elevation M"
+          },
+          "max_terrain_elevation_m": {
+            "type": "number",
+            "title": "Max Terrain Elevation M"
+          },
+          "min_fresnel_clearance_m": {
+            "type": "number",
+            "title": "Min Fresnel Clearance M"
+          },
+          "min_fresnel_clearance_percent": {
+            "type": "number",
+            "title": "Min Fresnel Clearance Percent"
+          },
+          "los_blocked": {
+            "type": "boolean",
+            "title": "Los Blocked"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "'CLEAR', 'MARGINAL', o 'BLOCKED'"
+          },
+          "received_power_dbm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received Power Dbm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "distance_km",
+          "frequency_mhz",
+          "fspl_db",
+          "tx_elevation_m",
+          "rx_elevation_m",
+          "max_terrain_elevation_m",
+          "min_fresnel_clearance_m",
+          "min_fresnel_clearance_percent",
+          "los_blocked",
+          "status"
+        ],
+        "title": "LinkAnalysisSummary"
+      },
+      "TerrainPoint": {
+        "properties": {
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "elevation_m": {
+            "type": "number",
+            "title": "Elevation M"
+          },
+          "tx_line_height_m": {
+            "type": "number",
+            "title": "Tx Line Height M"
+          },
+          "fresnel_60_radius_m": {
+            "type": "number",
+            "title": "Fresnel 60 Radius M"
+          },
+          "is_obstructed": {
+            "type": "boolean",
+            "title": "Is Obstructed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "distance_km",
+          "lat",
+          "lon",
+          "elevation_m",
+          "tx_line_height_m",
+          "fresnel_60_radius_m",
+          "is_obstructed"
+        ],
+        "title": "TerrainPoint"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://rf-link-analytics-api.onrender.com",
+      "description": "Servidor de Producci\u00f3n (Render)"
+    }
+  ]
+}

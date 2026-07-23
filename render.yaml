@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: rf-link-analytics-api
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 8000
