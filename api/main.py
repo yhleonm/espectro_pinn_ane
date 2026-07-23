@@ -41,6 +41,7 @@ link_service = LinkService()
 
 
 @app.get("/", tags=["Health"])
+@app.get("/health", tags=["Health"])
 def health_check():
     """Verifica la salud de la API."""
     return {
