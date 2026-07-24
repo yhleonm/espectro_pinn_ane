@@ -148,7 +148,7 @@ class LinkService:
                     min_clearance_pct = clearance_pct
 
             is_obstructed = clearance_m < r60_m
-            if is_obstructed and 0 < i < n_pts - 1:
+            if clearance_m < 0 and 0 < i < n_pts - 1:
                 los_blocked = True
 
             points.append(TerrainPoint(
