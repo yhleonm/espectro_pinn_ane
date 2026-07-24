@@ -212,12 +212,11 @@ class SRTMReader:
 
     def _parse_tile_info(self) -> TileInfo:
         """Extrae metadatos. Si es TIF, usa rasterio."""
-        import rasterio
-        
         filepath = self.filepath
         
         # Si es un TIF, podemos leer todo desde rasterio
         if filepath.suffix.lower() == ".tif":
+            import rasterio
             with rasterio.open(filepath) as src:
                 bounds = src.bounds
                 # rasterio bounds: (left, bottom, right, top)
@@ -281,10 +280,9 @@ class SRTMReader:
 
     def _load(self) -> np.ndarray:
         """Carga el archivo TIF o HGT en un array NumPy."""
-        import rasterio
-        
         # Soporte para TIF
         if self.filepath.suffix.lower() == ".tif":
+            import rasterio
             with rasterio.open(self.filepath) as src:
                 data = src.read(1)
                 # TIFs a veces usan otros nodata o el mismo -32768
