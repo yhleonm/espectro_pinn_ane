@@ -16,7 +16,11 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 import numpy as np
-import pandas as pd
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except Exception:
+    PANDAS_AVAILABLE = False
 
 
 @dataclass
