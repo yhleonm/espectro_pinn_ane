@@ -54,12 +54,18 @@ def health_check():
 @app.get("/debug-srtm", tags=["Health"])
 def debug_srtm():
     import traceback
-    from src.parsers.srtm_reader import download_srtm_tile, SRTMReader
+    from api.schemas import LinkAnalysisRequest, AntennaSite
     out = {}
     try:
-        out["download_path"] = str(download_srtm_tile(4, -75, output_dir=link_service.srtm_dir))
-        reader = SRTMReader(out["download_path"])
-        out["elevation"] = reader.get_elevation(4.6097, -74.0817)
+        req = LinkAnalysisRequest(
+            tx=AntennaSite(lat=4.6097, lon=-74.0817, height_m=30, power_dbm=43, gain_dbi=12),
+            rx=AntennaSite(lat=4.5709, lon=-74.2973, height_m=15, power_dbm=43, gain_dbi=15),
+            frequency_mhz=5800,
+            n_samples=100
+        )
+        res = link_service.analyze_link(req)
+        out["summary"] = res.summary.model_dump()
+        out["profile_sample"] = [p.model_dump() for p in res.profile[:5]]
     except Exception as e:
         out["error"] = str(e)
         out["traceback"] = traceback.format_exc()
