@@ -51,6 +51,22 @@ def health_check():
     }
 
 
+@app.get("/debug-srtm", tags=["Health"])
+def debug_srtm():
+    import traceback
+    try:
+        elev = link_service._get_elevation(4.6097, -74.0817)
+        files = [str(p.name) for p in link_service.srtm_dir.glob("*")]
+        return {
+            "elevation": elev,
+            "srtm_dir": str(link_service.srtm_dir),
+            "dir_exists": link_service.srtm_dir.exists(),
+            "files": files
+        }
+    except Exception as e:
+        return {"error": str(e), "traceback": traceback.format_exc()}
+
+
 @app.post(
     "/api/v1/link-analysis",
     response_model=LinkAnalysisResponse,
