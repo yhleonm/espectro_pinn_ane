@@ -54,17 +54,17 @@ def health_check():
 @app.get("/debug-srtm", tags=["Health"])
 def debug_srtm():
     import traceback
+    from src.parsers.srtm_reader import download_srtm_tile, SRTMReader
+    out = {}
     try:
-        elev = link_service._get_elevation(4.6097, -74.0817)
-        files = [str(p.name) for p in link_service.srtm_dir.glob("*")]
-        return {
-            "elevation": elev,
-            "srtm_dir": str(link_service.srtm_dir),
-            "dir_exists": link_service.srtm_dir.exists(),
-            "files": files
-        }
+        out["download_path"] = str(download_srtm_tile(4, -75, output_dir=link_service.srtm_dir))
+        reader = SRTMReader(out["download_path"])
+        out["elevation"] = reader.get_elevation(4.6097, -74.0817)
     except Exception as e:
-        return {"error": str(e), "traceback": traceback.format_exc()}
+        out["error"] = str(e)
+        out["traceback"] = traceback.format_exc()
+    out["files"] = [str(p.name) for p in link_service.srtm_dir.glob("*")]
+    return out
 
 
 @app.post(
