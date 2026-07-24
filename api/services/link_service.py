@@ -59,13 +59,12 @@ class LinkService:
         lon_str = f"E{abs(lon_floor):03d}" if lon_floor >= 0 else f"W{abs(lon_floor):03d}"
         tile_name = f"{lat_str}{lon_str}"
         
-        if tile_name in self._tile_cache:
+        if tile_name in self._tile_cache and self._tile_cache[tile_name] is not None:
             reader = self._tile_cache[tile_name]
-            if reader is not None:
-                try:
-                    return reader.get_elevation(lat, lon)
-                except Exception:
-                    pass
+            try:
+                return reader.get_elevation(lat, lon)
+            except Exception:
+                pass
 
         # Buscar archivo local (.hgt, .zip, .tif)
         possible_files = list(self.srtm_dir.glob(f"{tile_name}*"))
