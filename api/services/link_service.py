@@ -13,12 +13,7 @@ from api.schemas import LinkAnalysisRequest, LinkAnalysisResponse, LinkAnalysisS
 from src.propagation.fspl import fspl_db, received_power_dbm
 from src.geo.coordinates import haversine_distance
 
-# Intentar importar el lector SRTM existente
-try:
-    from src.parsers.srtm_reader import SRTMReader, download_srtm_tile
-    SRTM_AVAILABLE = True
-except Exception:
-    SRTM_AVAILABLE = False
+from src.parsers.srtm_reader import SRTMReader, download_srtm_tile
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -68,24 +63,24 @@ class LinkService:
 
         # Buscar archivo local (.hgt, .zip, .tif)
         possible_files = list(self.srtm_dir.glob(f"{tile_name}*"))
-        if possible_files and SRTM_AVAILABLE:
+        if possible_files:
             try:
                 reader = SRTMReader(possible_files[0])
                 self._tile_cache[tile_name] = reader
                 return reader.get_elevation(lat, lon)
-            except Exception:
+            except Exception as e:
+                print(f"Error leyendo archivo SRTM local {possible_files[0]}: {e}")
                 pass
                 
         # Intentar descargar tile si no existe
-        if SRTM_AVAILABLE:
-            try:
-                hgt_path = download_srtm_tile(lat_floor, lon_floor, output_dir=self.srtm_dir)
-                reader = SRTMReader(hgt_path)
-                self._tile_cache[tile_name] = reader
-                return reader.get_elevation(lat, lon)
-            except Exception as e:
-                print(f"Error cargando tile SRTM {tile_name}: {e}")
-                pass
+        try:
+            hgt_path = download_srtm_tile(lat_floor, lon_floor, output_dir=self.srtm_dir)
+            reader = SRTMReader(hgt_path)
+            self._tile_cache[tile_name] = reader
+            return reader.get_elevation(lat, lon)
+        except Exception as e:
+            print(f"Error descargando/cargando tile SRTM {tile_name}: {e}")
+            pass
 
         # Fallback sintético si no hay tile disponible
         self._tile_cache[tile_name] = None
