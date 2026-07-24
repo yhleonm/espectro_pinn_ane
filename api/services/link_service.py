@@ -83,7 +83,6 @@ class LinkService:
             pass
 
         # Fallback sintético si no hay tile disponible
-        self._tile_cache[tile_name] = None
         return 0.0
 
     def analyze_link(self, req: LinkAnalysisRequest) -> LinkAnalysisResponse:

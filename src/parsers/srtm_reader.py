@@ -397,6 +397,13 @@ def download_srtm_tile(
         # Limpiar gz
         gz_path.unlink()
         
+        # Validar que el archivo descomprimido no esté incompleto
+        sz = output_path.stat().st_size
+        if sz not in (25934402, 2884802):
+            if output_path.exists():
+                output_path.unlink()
+            raise ValueError(f"Tamaño de tile SRTM inválido: {sz} bytes (esperado ~25.9MB o ~2.8MB)")
+
         print(f"  ✓ Descargado y descomprimido: {output_path}")
     except Exception as e:
         print(f"  ✗ No se pudo descargar {tile_name}: {e}")
