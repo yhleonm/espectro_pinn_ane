@@ -382,7 +382,8 @@ def download_srtm_tile(
 
     print(f"  ⬇ Descargando tile {tile_name} desde AWS Skadi...")
     try:
-        resp = requests.get(url, stream=True, timeout=30)
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        resp = requests.get(url, headers=headers, stream=True, timeout=30)
         resp.raise_for_status()
         
         # Guardar archivo gz

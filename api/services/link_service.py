@@ -84,7 +84,8 @@ class LinkService:
                 reader = SRTMReader(hgt_path)
                 self._tile_cache[tile_name] = reader
                 return reader.get_elevation(lat, lon)
-            except Exception:
+            except Exception as e:
+                print(f"Error cargando tile SRTM {tile_name}: {e}")
                 pass
 
         # Fallback sintético si no hay tile disponible
